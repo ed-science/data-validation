@@ -42,16 +42,15 @@ def display_schema(schema):
     schema: A Schema protocol buffer.
   """
   if not isinstance(schema, schema_pb2.Schema):
-    raise TypeError('schema is of type %s, should be a Schema proto.' %
-                    type(schema).__name__)
+    raise TypeError(
+        f'schema is of type {type(schema).__name__}, should be a Schema proto.'
+    )
 
   # Extract all the string domains at the schema level.
-  domain_rows = []
-  for domain in schema.string_domain:
-    domain_rows.append(
-        [_add_quotes(domain.name),
-         ', '.join(_add_quotes(v) for v in domain.value)])
-
+  domain_rows = [[
+      _add_quotes(domain.name),
+      ', '.join(_add_quotes(v) for v in domain.value),
+  ] for domain in schema.string_domain]
   feature_rows = []
   # Iterate over the features in the schema and extract the properties of each
   # feature.
@@ -102,9 +101,7 @@ def display_schema(schema):
                      if feature.float_domain.HasField('max') else 'inf)')
       domain = left_value + ',' + right_value
     elif feature.HasField('string_domain'):
-      domain = _add_quotes(feature.string_domain.name if
-                           feature.string_domain.name else
-                           feature.name + '_domain')
+      domain = _add_quotes(feature.string_domain.name or feature.name + '_domain')
       domain_rows.append([domain,
                           ', '.join(_add_quotes(v) for v in
                                     feature.string_domain.value)])
@@ -138,19 +135,15 @@ def display_anomalies(anomalies):
     anomalies: An Anomalies protocol buffer.
   """
   if not isinstance(anomalies, anomalies_pb2.Anomalies):
-    raise TypeError('anomalies is of type %s, should be an Anomalies proto.' %
-                    type(anomalies).__name__)
+    raise TypeError(
+        f'anomalies is of type {type(anomalies).__name__}, should be an Anomalies proto.'
+    )
 
-  anomaly_rows = []
-  for feature_name, anomaly_info in anomalies.anomaly_info.items():
-    anomaly_rows.append([
-        _add_quotes(feature_name), anomaly_info.short_description,
-        anomaly_info.description
-    ])
-
-  if not anomaly_rows:
-    display(HTML('<h4 style="color:green;">No anomalies found.</h4>'))
-  else:
+  if anomaly_rows := [[
+      _add_quotes(feature_name),
+      anomaly_info.short_description,
+      anomaly_info.description,
+  ] for feature_name, anomaly_info in anomalies.anomaly_info.items()]:
     # Construct a DataFrame consisting of the anomalies and display it.
     anomalies_df = pd.DataFrame(
         anomaly_rows,
@@ -159,6 +152,8 @@ def display_anomalies(anomalies):
     # Do not truncate columns.
     pd.set_option('max_colwidth', -1)
     display(anomalies_df)
+  else:
+    display(HTML('<h4 style="color:green;">No anomalies found.</h4>'))
 
 
 def get_statistics_html(
@@ -244,10 +239,7 @@ def get_statistics_html(
            facets_iframe.setAttribute('height', facets_iframe.contentWindow.document.body.offsetHeight + 'px')
          }, 1500)
          </script>"""
-  # pylint: enable=line-too-long
-  html = html_template.replace('protostr', protostr)
-
-  return html
+  return html_template.replace('protostr', protostr)
 
 
 def visualize_statistics(

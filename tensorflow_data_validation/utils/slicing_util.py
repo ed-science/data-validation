@@ -179,8 +179,9 @@ def _to_slice_key(feature_value):
   if isinstance(feature_value, six.binary_type):
     decoded_value = stats_util.maybe_get_utf8(feature_value)
     if decoded_value is None:
-      raise ValueError('Feature names and slicing feature values must be valid'
-                       ' UTF-8. Found value {}.'.format(feature_value))
+      raise ValueError(
+          f'Feature names and slicing feature values must be valid UTF-8. Found value {feature_value}.'
+      )
     return decoded_value
   return str(feature_value)
 
@@ -201,8 +202,8 @@ def generate_slices(
   """
   for slice_fn in slice_functions:
     try:
-      for sliced_table in slice_fn(table, **kwargs):
-        yield sliced_table
+      yield from slice_fn(table, **kwargs)
     except Exception as e:
-      raise ValueError('One of the slice_functions %s raised an exception: %s.'
-                       % (slice_fn.__name__, repr(e)))
+      raise ValueError(
+          f'One of the slice_functions {slice_fn.__name__} raised an exception: {repr(e)}.'
+      )

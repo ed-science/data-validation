@@ -76,8 +76,9 @@ class DecodeCSV(beam.PTransform):
         rows as the `desired_batch_size`.
     """
     if not isinstance(column_names, list):
-      raise TypeError('column_names is of type %s, should be a list' %
-                      type(column_names).__name__)
+      raise TypeError(
+          f'column_names is of type {type(column_names).__name__}, should be a list'
+      )
     self._column_names = column_names
     self._delimiter = delimiter
     self._skip_blank_lines = skip_blank_lines
@@ -136,8 +137,9 @@ class DecodeCSVToDict(beam.PTransform):
         be provided.
     """
     if not isinstance(column_names, list):
-      raise TypeError('column_names is of type %s, should be a list' %
-                      type(column_names).__name__)
+      raise TypeError(
+          f'column_names is of type {type(column_names).__name__}, should be a list'
+      )
     self._column_names = column_names
     self._delimiter = delimiter
     self._skip_blank_lines = skip_blank_lines
@@ -187,10 +189,10 @@ def _get_feature_types_from_schema(
       schema_pb2.FLOAT: statistics_pb2.FeatureNameStatistics.FLOAT,
       schema_pb2.BYTES: statistics_pb2.FeatureNameStatistics.STRING
   }
-  feature_type_map = {}
-  for feature in schema.feature:
-    feature_type_map[feature.name] = schema_type_to_stats_type[feature.type]
-
+  feature_type_map = {
+      feature.name: schema_type_to_stats_type[feature.type]
+      for feature in schema.feature
+  }
   return [
       ColumnInfo(col_name, feature_type_map.get(col_name, None))
       for col_name in column_names
@@ -305,7 +307,7 @@ def _make_example_dict(row, skip_blank_lines,
     elif feature_type == statistics_pb2.FeatureNameStatistics.STRING:
       result[feature_name] = np.asarray([field], dtype=np.object)
     else:
-      raise TypeError('Cannot determine the type of column %s.' % feature_name)
+      raise TypeError(f'Cannot determine the type of column {feature_name}.')
   return [result]
 
 
@@ -375,8 +377,9 @@ class _FeatureTypeInferrer(beam.CombineFn):
     if not input_row and not self._skip_blank_lines:
       input_row = ['' for _ in six.moves.range(len(self._column_names))]
     elif input_row and len(input_row) != len(self._column_names):
-      raise ValueError('Columns do not match specified csv headers: %s -> %s' %
-                       (self._column_names, input_row))
+      raise ValueError(
+          f'Columns do not match specified csv headers: {self._column_names} -> {input_row}'
+      )
 
     # Iterate over each feature value and update the type.
     for index, field in enumerate(input_row):

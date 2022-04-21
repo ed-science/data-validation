@@ -239,8 +239,7 @@ class MakeListArrayFromParentIndicesAndValuesTest(parameterized.TestCase):
     actual = arrow_util.MakeListArrayFromParentIndicesAndValues(
         num_parents, parent_indices, values)
     self.assertTrue(
-        actual.equals(expected),
-        "actual: {}, expected: {}".format(actual, expected))
+        actual.equals(expected), f"actual: {actual}, expected: {expected}")
 
 
 if __name__ == "__main__":

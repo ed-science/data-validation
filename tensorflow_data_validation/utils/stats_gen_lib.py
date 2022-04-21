@@ -217,13 +217,14 @@ def generate_statistics_from_dataframe(
     A DatasetFeatureStatisticsList proto.
   """
   if not isinstance(dataframe, pd.DataFrame):
-    raise TypeError('dataframe argument is of type {}. Must be a '
-                    'pandas DataFrame.'.format(type(dataframe).__name__))
+    raise TypeError(
+        f'dataframe argument is of type {type(dataframe).__name__}. Must be a pandas DataFrame.'
+    )
 
   stats_generators = stats_impl.get_generators(stats_options, in_memory=True)  # type: List[stats_generator.CombinerStatsGenerator]
   if n_jobs < -1 or n_jobs == 0:
-    raise ValueError('Invalid n_jobs parameter {}. Should be either '
-                     ' -1 or >= 1.'.format(n_jobs))
+    raise ValueError(
+        f'Invalid n_jobs parameter {n_jobs}. Should be either  -1 or >= 1.')
 
   if n_jobs == -1:
     n_jobs = multiprocessing.cpu_count()
@@ -287,11 +288,8 @@ def _generate_partial_statistics_from_df(
 
     # Get decoding fn based on column type.
     fn = decode_fn[kind]
-    # Iterate over the column and apply the decoding fn.
-    j = 0
-    for val in dataframe[col_name]:
+    for j, val in enumerate(dataframe[col_name]):
       inmemory_dicts[j][col_name] = fn(val)
-      j += 1
   if schema.feature:
     stats_options.schema = schema
   return stats_impl.generate_partial_statistics_in_memory(
@@ -320,16 +318,15 @@ def get_csv_header(data_location,
   """
   matched_files = tf.gfile.Glob(data_location)
   if not matched_files:
-    raise ValueError(
-        'No file found in the input data location: %s' % data_location)
+    raise ValueError(f'No file found in the input data location: {data_location}')
 
   # Read the header line in the first file.
   with tf.gfile.GFile(matched_files[0], 'r') as reader:
     try:
       result = next(csv.reader(reader, delimiter=delimiter))
     except StopIteration:
-      raise ValueError('Found empty file when reading the header line: %s' %
-                       matched_files[0])
+      raise ValueError(
+          f'Found empty file when reading the header line: {matched_files[0]}')
 
   # Make sure that all files have the same header.
   for filename in matched_files[1:]:
@@ -338,8 +335,7 @@ def get_csv_header(data_location,
         if next(csv.reader(reader, delimiter=delimiter)) != result:
           raise ValueError('Files have different headers.')
       except StopIteration:
-        raise ValueError(
-            'Found empty file when reading the header line: %s' % filename)
+        raise ValueError(f'Found empty file when reading the header line: {filename}')
 
   return result
 

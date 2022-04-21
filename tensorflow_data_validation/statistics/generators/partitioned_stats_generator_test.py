@@ -404,9 +404,7 @@ class NonStreamingCustomStatsGeneratorTest(
   def test_sklearn_mi_with_slicing(self):
     sliced_tables = []
     for slice_key in ['slice1', 'slice2']:
-      for table in self.tables:
-        sliced_tables.append((slice_key, table))
-
+      sliced_tables.extend((slice_key, table) for table in self.tables)
     expected_result = [
         ('slice1',
          _get_test_stats_with_mi([

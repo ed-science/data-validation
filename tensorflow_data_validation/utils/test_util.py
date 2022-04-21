@@ -59,7 +59,7 @@ def make_example_dict_equal_fn(
             test.assertEqual(actual[i][key], expected[i][key])
 
     except AssertionError as e:
-      raise util.BeamAssertException('Failed assert: ' + str(e))
+      raise util.BeamAssertException(f'Failed assert: {str(e)}')
 
   return _matcher
 
@@ -93,7 +93,7 @@ def make_dataset_feature_stats_list_proto_equal_fn(
                                                  sorted_actual_datasets[i],
                                                  sorted_expected_datasets[i])
     except AssertionError as e:
-      raise util.BeamAssertException('Failed assert: ' + str(e))
+      raise util.BeamAssertException(f'Failed assert: {str(e)}')
 
   return _matcher
 
@@ -110,10 +110,10 @@ def assert_feature_proto_equal(
   """
 
   test.assertEqual(len(actual.custom_stats), len(expected.custom_stats))
-  expected_custom_stats = {}
-  for expected_custom_stat in expected.custom_stats:
-    expected_custom_stats[expected_custom_stat.name] = expected_custom_stat
-
+  expected_custom_stats = {
+      expected_custom_stat.name: expected_custom_stat
+      for expected_custom_stat in expected.custom_stats
+  }
   for actual_custom_stat in actual.custom_stats:
     test.assertTrue(actual_custom_stat.name in expected_custom_stats)
     expected_custom_stat = expected_custom_stats[actual_custom_stat.name]
@@ -143,10 +143,10 @@ def assert_dataset_feature_stats_proto_equal(
   test.assertEqual(actual.num_examples, expected.num_examples)
   test.assertEqual(len(actual.features), len(expected.features))
 
-  expected_features = {}
-  for feature in expected.features:
-    expected_features[types.FeaturePath.from_proto(feature.path)] = feature
-
+  expected_features = {
+      types.FeaturePath.from_proto(feature.path): feature
+      for feature in expected.features
+  }
   for feature in actual.features:
     feature_path = types.FeaturePath.from_proto(feature.path)
     if feature_path not in expected_features:
@@ -181,9 +181,11 @@ class CombinerStatsGeneratorTest(absltest.TestCase):
     ]
     result = generator.extract_output(
         generator.merge_accumulators(accumulators))
-    self.assertEqual(  # pylint: disable=g-generic-assert
-        len(result.features), len(expected_result),
-        '{}, {}'.format(result, expected_result))
+    self.assertEqual(
+        len(result.features),
+        len(expected_result),
+        f'{result}, {expected_result}',
+    )
     for actual_feature_stats in result.features:
       compare.assertProtoEqual(
           self,
