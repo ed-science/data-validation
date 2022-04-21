@@ -2088,13 +2088,12 @@ class StatsImplTest(parameterized.TestCase):
     }
 
     # Check each counter.
-    for counter_name in expected_result:
+    for counter_name, value in expected_result.items():
       actual_counter = result_metrics.query(
           beam.metrics.metric.MetricsFilter().with_name(counter_name)
           )['counters']
       self.assertLen(actual_counter, 1)
-      self.assertEqual(actual_counter[0].committed,
-                       expected_result[counter_name])
+      self.assertEqual(actual_counter[0].committed, value)
 
   def test_filter_features(self):
     input_table = pa.Table.from_arrays([

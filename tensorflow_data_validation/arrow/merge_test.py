@@ -372,7 +372,8 @@ class SliceTableByRowIndicesTest(parameterized.TestCase):
                                           np.array(row_indices, dtype=np.int32))
     self.assertTrue(
         sliced.equals(expected_output),
-        "Expected {}, got {}".format(expected_output, sliced))
+        f"Expected {expected_output}, got {sliced}",
+    )
     if sliced.num_rows > 0:
       for c in sliced.columns:
         self.assertEqual(c.data.num_chunks, 1)

@@ -185,13 +185,10 @@ def get_generators(options,
             semantic_domain_feature_stats_generators,
             weight_feature=options.weight_feature,
             sample_rate=options.semantic_domain_stats_sample_rate))
-  # Replace all CombinerFeatureStatsGenerator with a single
-  # CombinerFeatureStatsWrapperGenerator.
-  feature_generators = [
+  if feature_generators := [
       x for x in generators
       if isinstance(x, stats_generator.CombinerFeatureStatsGenerator)
-  ]
-  if feature_generators:
+  ]:
     generators = [
         x for x in generators
         if not isinstance(x, stats_generator.CombinerFeatureStatsGenerator)
@@ -269,10 +266,10 @@ def _filter_features(
     An Arrow table containing only the whitelisted features of the input table.
   """
   column_names = set(table.schema.names)
-  columns_to_select = []
-  for feature_name in feature_whitelist:
-    if feature_name in column_names:
-      columns_to_select.append(table.column(feature_name))
+  columns_to_select = [
+      table.column(feature_name) for feature_name in feature_whitelist
+      if feature_name in column_names
+  ]
   return pa.Table.from_arrays(columns_to_select)
 
 
@@ -357,11 +354,9 @@ def _update_example_and_missing_count(
       common_stats = feature_stats.num_stats.common_stats
     else:
       common_stats = feature_stats.string_stats.common_stats
-    assert num_examples >= common_stats.num_non_missing, (
-        'Total number of examples: {} is less than number of non missing '
-        'examples: {} for feature {}.'.format(
-            num_examples, common_stats.num_non_missing,
-            '.'.join(feature_stats.path.step)))
+    assert (
+        num_examples >= common_stats.num_non_missing
+    ), f"Total number of examples: {num_examples} is less than number of non missing examples: {common_stats.num_non_missing} for feature {'.'.join(feature_stats.path.step)}."
     common_stats.num_missing = int(
         num_examples - common_stats.num_non_missing)
     if weighted_num_examples != 0:
@@ -647,17 +642,14 @@ def generate_partial_statistics_in_memory(
   Returns:
     A list of accumulators containing partial statistics.
   """
-  result = []
-
   if options.feature_whitelist:
     whitelisted_columns = [
         table.column(f) for f in options.feature_whitelist]
     table = pa.Table.from_arrays(whitelisted_columns)
-  for generator in stats_generators:
-    result.append(
-        generator.add_input(generator.create_accumulator(), table))
-
-  return result
+  return [
+      generator.add_input(generator.create_accumulator(), table)
+      for generator in stats_generators
+  ]
 
 
 def generate_statistics_in_memory(

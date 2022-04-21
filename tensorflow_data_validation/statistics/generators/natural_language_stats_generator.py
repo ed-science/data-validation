@@ -106,13 +106,11 @@ class AverageWordHeuristicNLClassifier(NLClassifierInterface):
     self._crop_at_length = crop_at_length
 
   def classify(self, value):
-    words = value[0:self._crop_at_length].split()
+    words = value[:self._crop_at_length].split()
     if not words:
       return False
     # Expanded for loop efficiency.
-    sum_word_length = 0
-    for w in words:
-      sum_word_length += len(w)
+    sum_word_length = sum(len(w) for w in words)
     avg_word_length = float(sum_word_length) / len(words)
     if (self._avg_word_length_min <= avg_word_length <=
         self._avg_word_length_max and len(words) >= self._min_words_per_value):

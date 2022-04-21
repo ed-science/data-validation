@@ -108,10 +108,10 @@ def anomalies_slicer(
   """
   slice_keys = []
   for feature_name, anomaly_info in anomalies.anomaly_info.items():
-    for anomaly_reason in anomaly_info.reason:
-      slice_keys.append(
-          feature_name + '_' +
-          anomalies_pb2.AnomalyInfo.Type.Name(anomaly_reason.type))
+    slice_keys.extend(
+        (f'{feature_name}_' +
+         anomalies_pb2.AnomalyInfo.Type.Name(anomaly_reason.type))
+        for anomaly_reason in anomaly_info.reason)
   return slice_keys
 
 
@@ -128,8 +128,8 @@ def write_anomalies_text(anomalies,
   """
   if not isinstance(anomalies, anomalies_pb2.Anomalies):
     raise TypeError(
-        'anomalies is of type %s; should be an Anomalies proto.' %
-        type(anomalies).__name__)
+        f'anomalies is of type {type(anomalies).__name__}; should be an Anomalies proto.'
+    )
 
   anomalies_text = text_format.MessageToString(anomalies)
   file_io.write_string_to_file(output_path, anomalies_text)

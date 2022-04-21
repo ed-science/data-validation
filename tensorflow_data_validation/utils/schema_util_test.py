@@ -499,9 +499,11 @@ class SchemaUtilTest(parameterized.TestCase):
           }
         }
         """, schema_pb2.Schema())
-    expected = set([types.FeaturePath(['fa']),
-                    types.FeaturePath(['fb']),
-                    types.FeaturePath(['fd', 'fd_fa'])])
+    expected = {
+        types.FeaturePath(['fa']),
+        types.FeaturePath(['fb']),
+        types.FeaturePath(['fd', 'fd_fa']),
+    }
     self.assertEqual(schema_util.get_categorical_features(schema), expected)
 
   def test_get_multivalent_features(self):
@@ -590,12 +592,14 @@ class SchemaUtilTest(parameterized.TestCase):
             }
           }
           """, schema_pb2.Schema())
-    expected = set([types.FeaturePath(['fc']),
-                    types.FeaturePath(['fe']),
-                    types.FeaturePath(['ff']),
-                    types.FeaturePath(['fg']),
-                    types.FeaturePath(['fh']),
-                    types.FeaturePath(['fi', 'fi_fb'])])
+    expected = {
+        types.FeaturePath(['fc']),
+        types.FeaturePath(['fe']),
+        types.FeaturePath(['ff']),
+        types.FeaturePath(['fg']),
+        types.FeaturePath(['fh']),
+        types.FeaturePath(['fi', 'fi_fb']),
+    }
     self.assertEqual(schema_util.get_multivalent_features(schema), expected)
 
 

@@ -141,8 +141,9 @@ class StatsOptions(object):
       self, generators):
     if generators is not None:
       if not isinstance(generators, list):
-        raise TypeError('generators is of type %s, should be a list.' %
-                        type(generators).__name__)
+        raise TypeError(
+            f'generators is of type {type(generators).__name__}, should be a list.'
+        )
       for generator in generators:
         if not isinstance(generator, (
             stats_generator.CombinerStatsGenerator,
@@ -165,8 +166,9 @@ class StatsOptions(object):
       self, feature_whitelist):
     if feature_whitelist is not None and not isinstance(feature_whitelist,
                                                         list):
-      raise TypeError('feature_whitelist is of type %s, should be a list.' %
-                      type(feature_whitelist).__name__)
+      raise TypeError(
+          f'feature_whitelist is of type {type(feature_whitelist).__name__}, should be a list.'
+      )
     self._feature_whitelist = feature_whitelist
 
   @property
@@ -176,8 +178,9 @@ class StatsOptions(object):
   @schema.setter
   def schema(self, schema):
     if schema is not None and not isinstance(schema, schema_pb2.Schema):
-      raise TypeError('schema is of type %s, should be a Schema proto.' %
-                      type(schema).__name__)
+      raise TypeError(
+          f'schema is of type {type(schema).__name__}, should be a Schema proto.'
+      )
     self._schema = schema
 
   @property
@@ -189,8 +192,9 @@ class StatsOptions(object):
       self, slice_functions):
     if slice_functions is not None:
       if not isinstance(slice_functions, list):
-        raise TypeError('slice_functions is of type %s, should be a list.' %
-                        type(slice_functions).__name__)
+        raise TypeError(
+            f'slice_functions is of type {type(slice_functions).__name__}, should be a list.'
+        )
       for slice_function in slice_functions:
         if not isinstance(slice_function, python_types.FunctionType):
           raise TypeError('slice_functions must contain functions only.')
@@ -280,8 +284,8 @@ class StatsOptions(object):
   @semantic_domain_stats_sample_rate.setter
   def semantic_domain_stats_sample_rate(
       self, semantic_domain_stats_sample_rate):
-    if semantic_domain_stats_sample_rate is not None:
-      if not 0 < semantic_domain_stats_sample_rate <= 1:
-        raise ValueError('Invalid semantic_domain_stats_sample_rate %f'
-                         % semantic_domain_stats_sample_rate)
+    if (semantic_domain_stats_sample_rate is not None
+        and not 0 < semantic_domain_stats_sample_rate <= 1):
+      raise ValueError('Invalid semantic_domain_stats_sample_rate %f'
+                       % semantic_domain_stats_sample_rate)
     self._semantic_domain_stats_sample_rate = semantic_domain_stats_sample_rate

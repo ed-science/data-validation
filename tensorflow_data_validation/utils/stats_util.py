@@ -92,9 +92,9 @@ def get_feature_type_from_arrow_type(
   if pa.types.is_null(arrow_type):
     return None
   if not pa.types.is_list(arrow_type):
-    raise TypeError('Expected feature column to be a List<primitive|struct> or '
-                    'null, but feature {} was {}.'
-                    .format(feature_path, arrow_type))
+    raise TypeError(
+        f'Expected feature column to be a List<primitive|struct> or null, but feature {feature_path} was {arrow_type}.'
+    )
 
   value_type = arrow_type.value_type
   if pa.types.is_integer(value_type):
@@ -104,8 +104,8 @@ def get_feature_type_from_arrow_type(
   if pa.types.is_binary(value_type) or pa.types.is_unicode(value_type):
     return statistics_pb2.FeatureNameStatistics.STRING
 
-  raise TypeError('Feature {} has unsupported arrow type: {}'.format(
-      feature_path, arrow_type))
+  raise TypeError(
+      f'Feature {feature_path} has unsupported arrow type: {arrow_type}')
 
 
 def make_dataset_feature_stats_proto(
@@ -273,8 +273,8 @@ def get_feature_stats(stats,
     if feature_path == types.FeaturePath.from_proto(feature_stats.path):
       return feature_stats
 
-  raise ValueError('Feature %s not found in the dataset statistics.' %
-                   feature_path)
+  raise ValueError(
+      f'Feature {feature_path} not found in the dataset statistics.')
 
 
 def get_custom_stats(
@@ -304,5 +304,6 @@ def get_custom_stats(
     if custom_stats.name == custom_stats_name:
       return getattr(custom_stats, custom_stats.WhichOneof('val'))
 
-  raise ValueError('Custom statistics %s not found in the feature statistics.' %
-                   custom_stats_name)
+  raise ValueError(
+      f'Custom statistics {custom_stats_name} not found in the feature statistics.'
+  )

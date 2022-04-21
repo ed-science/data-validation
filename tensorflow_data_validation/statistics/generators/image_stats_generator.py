@@ -120,7 +120,7 @@ class TfImageDecoder(ImageDecoderInterface):
       return tf.cond(
           pred=tf.equal(tf.size(input=image_shape), 4),
           true_fn=lambda: image_shape[1:3],
-          false_fn=lambda: image_shape[0:2],
+          false_fn=lambda: image_shape[:2],
       )
 
     with self._session.graph.as_default(), self._session.as_default():
@@ -327,8 +327,9 @@ class ImageStatsGenerator(stats_generator.CombinerFeatureStatsGenerator):
     # Add the buckets with sorted image format.
     for image_format in sorted(accumulator.counter_by_format):
       custom_stats.rank_histogram.buckets.add(
-          label=image_format if image_format else 'UNKNOWN',
-          sample_count=accumulator.counter_by_format[image_format])
+          label=image_format or 'UNKNOWN',
+          sample_count=accumulator.counter_by_format[image_format],
+      )
     if self._enable_size_stats:
       result.custom_stats.add(
           name=_IMAGE_MAX_WIDTH_STATISTICS, num=accumulator.max_width)

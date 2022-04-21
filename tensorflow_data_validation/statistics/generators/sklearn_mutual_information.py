@@ -57,9 +57,7 @@ def _remove_unsupported_feature_columns(examples_table,
     Arrow table.
   """
   multivalent_features = schema_util.get_multivalent_features(schema)
-  unsupported_columns = set()
-  for f in multivalent_features:
-    unsupported_columns.add(f.steps()[0])
+  unsupported_columns = {f.steps()[0] for f in multivalent_features}
   return examples_table.drop(unsupported_columns)
 
 
@@ -205,7 +203,6 @@ class SkLearnMutualInformation(partitioned_stats_generator.PartitionedStatsFn):
       MUTUAL_INFORMATION_KEY and ADJUSTED_MUTUAL_INFORMATION_KEY and the values
       are the MI and AMI for that feature.
     """
-    result = {}
     if self._label_feature_is_categorical:
       mi_per_feature = mutual_info_classif(
           df.values,
@@ -239,13 +236,14 @@ class SkLearnMutualInformation(partitioned_stats_generator.PartitionedStatsFn):
           copy=False,
           random_state=seed)
 
-    for i, (mi, shuffled_mi) in enumerate(
-        zip(mi_per_feature, shuffled_mi_per_feature)):
-      result[df.columns[i]] = {
-          MUTUAL_INFORMATION_KEY: mi,
-          ADJUSTED_MUTUAL_INFORMATION_KEY: mi - shuffled_mi
-      }
-    return result
+    return {
+        df.columns[i]: {
+            MUTUAL_INFORMATION_KEY: mi,
+            ADJUSTED_MUTUAL_INFORMATION_KEY: mi - shuffled_mi,
+        }
+        for i, (mi, shuffled_mi
+                ) in enumerate(zip(mi_per_feature, shuffled_mi_per_feature))
+    }
 
   def _convert_categorical_features_to_numeric(self,
                                                df):

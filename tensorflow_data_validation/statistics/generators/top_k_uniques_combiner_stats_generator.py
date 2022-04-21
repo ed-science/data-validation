@@ -190,8 +190,8 @@ class TopKUniquesCombinerStatsGenerator(
           feature_path, column.type)
       # if it's not a categorical feature nor a string feature, we don't bother
       # with topk stats.
-      if not (feature_path in self._categorical_features or
-              feature_type == statistics_pb2.FeatureNameStatistics.STRING):
+      if (feature_path not in self._categorical_features
+          and feature_type != statistics_pb2.FeatureNameStatistics.STRING):
         continue
       value_array = column.data.chunk(0)
       flattened_values = arrow_util.FlattenListArray(value_array)
@@ -242,8 +242,8 @@ class TopKUniquesCombinerStatsGenerator(
 
   def extract_output(self, accumulator
                     ):
-    feature_paths_to_value_counts = dict()
-    feature_paths_to_weighted_value_counts = dict()
+    feature_paths_to_value_counts = {}
+    feature_paths_to_weighted_value_counts = {}
 
     for feature_path, value_counts in accumulator.items():
       if value_counts.unweighted_counts:

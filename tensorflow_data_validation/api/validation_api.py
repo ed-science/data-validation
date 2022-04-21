@@ -16,6 +16,7 @@
 """API for schema inference and statistics validation.
 """
 
+
 from __future__ import absolute_import
 from __future__ import division
 
@@ -37,7 +38,7 @@ from tensorflow_metadata.proto.v0 import schema_pb2
 from tensorflow_metadata.proto.v0 import statistics_pb2
 
 # Set of anomaly types that do not apply on a per-example basis.
-_GLOBAL_ONLY_ANOMALY_TYPES = set([
+_GLOBAL_ONLY_ANOMALY_TYPES = {
     anomalies_pb2.AnomalyInfo.FEATURE_TYPE_LOW_FRACTION_PRESENT,
     anomalies_pb2.AnomalyInfo.FEATURE_TYPE_LOW_NUMBER_PRESENT,
     anomalies_pb2.AnomalyInfo.FEATURE_TYPE_NOT_PRESENT,
@@ -48,7 +49,7 @@ _GLOBAL_ONLY_ANOMALY_TYPES = set([
     anomalies_pb2.AnomalyInfo.COMPARATOR_LOW_NUM_EXAMPLES,
     anomalies_pb2.AnomalyInfo.COMPARATOR_HIGH_NUM_EXAMPLES,
     anomalies_pb2.AnomalyInfo.NO_DATA_IN_SPAN,
-])
+}
 
 
 def infer_schema(statistics,
@@ -144,8 +145,9 @@ def update_schema(schema,
     ValueError: If the input statistics proto does not have only one dataset.
   """
   if not isinstance(schema, schema_pb2.Schema):
-    raise TypeError('schema is of type %s, should be a Schema proto.' %
-                    type(schema).__name__)
+    raise TypeError(
+        f'schema is of type {type(schema).__name__}, should be a Schema proto.'
+    )
   if not isinstance(statistics, statistics_pb2.DatasetFeatureStatisticsList):
     raise TypeError(
         'statistics is of type %s, should be '
@@ -235,15 +237,15 @@ def validate_statistics(
                      'one dataset is currently supported for validation.')
 
   if not isinstance(schema, schema_pb2.Schema):
-    raise TypeError('schema is of type %s, should be a Schema proto.' %
-                    type(schema).__name__)
+    raise TypeError(
+        f'schema is of type {type(schema).__name__}, should be a Schema proto.'
+    )
 
-  if environment is not None:
-    if environment not in schema.default_environment:
-      raise ValueError('Environment %s not found in the schema.' % environment)
-  else:
+  if environment is None:
     environment = ''
 
+  elif environment not in schema.default_environment:
+    raise ValueError(f'Environment {environment} not found in the schema.')
   _check_for_unsupported_stats_fields(statistics.datasets[0], 'statistics')
   _check_for_unsupported_schema_fields(schema)
 

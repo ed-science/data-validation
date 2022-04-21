@@ -90,8 +90,9 @@ class GenerateStatistics(beam.PTransform):
       TypeError: If options is not of the expected type.
     """
     if not isinstance(options, stats_options.StatsOptions):
-      raise TypeError('options is of type %s, should be a StatsOptions.' %
-                      type(options).__name__)
+      raise TypeError(
+          f'options is of type {type(options).__name__}, should be a StatsOptions.'
+      )
     self._options = options
 
   def expand(self, dataset):
@@ -110,13 +111,13 @@ class GenerateStatistics(beam.PTransform):
       batch_count = (
           int(self._options.sample_count / batch_size) +
           (1 if self._options.sample_count % batch_size else 0))
-      dataset |= ('SampleExamples(%s)' % self._options.sample_count >>
+      dataset |= (f'SampleExamples({self._options.sample_count})' >>
                   beam.combiners.Sample.FixedSizeGlobally(batch_count)
-                  | 'FlattenExamples' >> beam.FlatMap(lambda lst: lst))
+                  ) | 'FlattenExamples' >> beam.FlatMap(lambda lst: lst)
     elif self._options.sample_rate is not None:
-      dataset |= ('SampleExamplesAtRate(%s)' % self._options.sample_rate >>
-                  beam.FlatMap(_sample_at_rate,
-                               sample_rate=self._options.sample_rate))
+      dataset |= (
+          f'SampleExamplesAtRate({self._options.sample_rate})' >> beam.FlatMap(
+              _sample_at_rate, sample_rate=self._options.sample_rate))
 
     return (dataset | 'RunStatsGenerators' >>
             stats_impl.GenerateStatisticsImpl(self._options))
